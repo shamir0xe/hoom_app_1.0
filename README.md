@@ -1,4 +1,4 @@
-# Hoom Door Application [![bitHound Score][bithound-img]][bithound-url]
+# Hoom Door Application
 
 First hoom door application, using PhoneGap app
 
