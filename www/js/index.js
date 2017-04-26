@@ -44,22 +44,40 @@ var app = {
 };
 
 app.initialize();
-
+var hostAddress = "http://192.168.0.57/led?params=1";
+var names = {
+    "1": "ژاله",
+    "2": "حمیدرضا",
+    "3": "امیرحسین",
+    "100": "admin"
+};
 
 {
-    var selectFunction = function() {
-        var exec = require('child_process').exec;
-        if (preview !== null) {
-            exec('kill -9 ' + preview.pid, function(error, stdout, stderr) {});
-        }
-        win.close();
+    function selectedStyling(selected) {
+        var element = document.getElementById('list-button');
+        var paragraph = element.childNodes[1];
+        paragraph.innerHTML = names[selected];
+        console.log("changed the name to: ", names[selected]);
     }
-    var elements = document.getElementsByClassName("list-item");
     var selected = null;
-    for (element in elements) {
-
-    }
-
-
+    var listClickedFunction = function(e) {
+        var element = (e.target).parentNode.parentNode;
+        var id = element.getAttribute('id');
+        console.log('selected id is:', id);
+        id = id.substr(id.indexOf('#') + 1);
+        console.log('selected id is:', id);
+        selected = id;
+        selectedStyling(selected);
+    };
+    $(document).on('click', '.list-item', listClickedFunction);
 }
 
+{
+    var element = document.getElementById('go-home-btn');
+    element.addEventListener('click', function () {
+        $.getJSON(hostAddress, null, function(data) {
+            console.log('sent!');
+            console.log(data);
+        });
+    })
+}
