@@ -52,32 +52,49 @@ var names = {
     "100": "admin"
 };
 
-{
-    function selectedStyling(selected) {
-        var element = document.getElementById('list-button');
-        var paragraph = element.childNodes[1];
-        paragraph.innerHTML = names[selected];
-        console.log("changed the name to: ", names[selected]);
-    }
-    var selected = null;
-    var listClickedFunction = function(e) {
-        var element = (e.target).parentNode.parentNode;
-        var id = element.getAttribute('id');
-        console.log('selected id is:', id);
-        id = id.substr(id.indexOf('#') + 1);
-        console.log('selected id is:', id);
-        selected = id;
-        selectedStyling(selected);
-    };
-    $(document).on('click', '.list-item', listClickedFunction);
-}
 
-{
-    var element = document.getElementById('go-home-btn');
-    element.addEventListener('click', function () {
+$(function () {
+    var selected = null;
+    const membersLimit = 99;
+
+    $('#alert-1').delay(2000).slideUp(1000);
+
+    function stylingSelected(selectedId) {
+        $($('#list-button').children()[0]).html(names[selectedId]);
+        console.log('changed the list name to ', names[selectedId]);
+    }
+
+    {
+        var unorderedList = $('#members-list');
+        for (var key in names) {
+
+            var pElement = $(document.createElement('p')).html(names[key]).attr('class', 'persian-text nopadding text-center list-item');
+            var aElement = $(document.createElement('a')).attr('href', '#');
+            aElement.append(pElement);
+            var liElement = $(document.createElement('li')).attr('id', 'list-item-#' + key);
+            liElement.append(aElement);
+            if (parseInt(key) < membersLimit) {
+                unorderedList.prepend(liElement);
+            } else {
+                unorderedList.append(liElement);
+            }
+        }
+    }
+
+    $('#go-home-btn').on('click', function () {
         $.getJSON(hostAddress, null, function(data) {
             console.log('sent!');
             console.log(data);
         });
-    })
-}
+    });
+
+    $(document).on('click', '.list-item', function () {
+        var id = $(this).parent().parent().attr('id');
+        console.log('selected id is: ', id);
+        id = id.substr(id.indexOf('#') + 1);
+        console.log('selected id is: ', id);
+        selected = id;
+        stylingSelected(id);
+    });
+});
+

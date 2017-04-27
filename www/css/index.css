@@ -136,3 +136,8 @@ h1 {
 }
 
 html,body{height:100%;}
+
+.alert {
+    padding-top: 20px;
+    margin-top: 20px;
+}
