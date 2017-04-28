@@ -38,10 +38,10 @@
 #define RST_PIN         9           // Configurable, see typical pin layout above
 #define SS_PIN          10          // Configurable, see typical pin layout above
 #define dataBaseSize    30           // size of the users of a door
-// #define openPin         2           // pin to go to the relay for opening the door
-
+#define interruptPinUp    2
+#define interruptPinDown    3
 #define BELL_RINGER 8
-#define RESET_PIN 3
+#define RESET_PIN A5
 #define UP 6
 #define DOWN 5
 #define F_PIN 4
@@ -733,7 +733,48 @@ void doorDecision() {
     }
 }
 
-
+void intMakeDec() {
+    // moghaabek ro baraabar e output gharaar bede
+    int value = getValue(digitalRead(UP) == LOW, digitalRead(F_PIN) == LOW, digitalRead(DOWN) == LOW);
+    // yek moteghayer baraaye inke force koni dar baaz she
+    boolean open_door = output == HIGH;
+    if (value == B00000000) {
+        openDoor();
+    } else if (value == B00000001) {
+        stayRelax();
+    } else if (value == B00000010) {
+        if (open_door) {
+            openDoor();
+        } else {
+            closeDoor();
+        }
+    } else if (value == B00000011) {
+        if (open_door) {
+            stayRelax();
+        } else {
+            // ba'de 1 saaniye baste she
+            delay(DELAY_BEFORE_CLOSING);
+            closeDoor();
+        }
+    } else if (value == B00000100) {
+        openDoor();
+    } else if (value == B00000101) {
+        trace(F("error"), F("UP and DOWN signals occured simultaneously!"));
+    } else if (value == B00000110) {
+        if (open_door) {
+            openDoor();
+        } else {
+            stayRelax();
+        }
+    } else if (value == B00000111) {
+        trace(F("error"), F("UP and DOWN signals occured simultaneously!"));
+    }
+    handleTimeDelay();
+    
+    if (digitalRead(BELL_RINGER) == LOW) {
+        bellTrigger();
+    }
+}
 /**
  * Initialize.
  */
@@ -752,6 +793,10 @@ void setup() {
     pinMode(MOGHAABEL, OUTPUT);
     pinMode(MOTOR_ONE, OUTPUT);
     pinMode(MOTOR_TWO, OUTPUT);
+    pinMode(interruptPinUp, INPUT_PULLUP);
+    pinMode(interruptPinDown, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(interruptPinUp), intMakeDec, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(interruptPinDown), intMakeDec, CHANGE);
     // pinMode(pulsePin, OUTPUT);
     // pinMode(openPin,OUTPUT);
 
