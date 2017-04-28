@@ -1,0 +1,11 @@
+.bithoundrc
+.npmignore
+CONTRIBUTING.md
+COPYRIGHT
+LICENSE
+NOTICE
+hooks/
+package.json
+platforms/
+plugins/
+.idea
