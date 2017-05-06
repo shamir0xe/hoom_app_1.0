@@ -41,9 +41,9 @@
 #define interruptPinUp    2
 #define interruptPinDown    3
 #define BELL_RINGER 8
-#define RESET_PIN A5
-#define UP 6
-#define DOWN 5
+#define RESET_PIN 5
+//#define UP 6
+//#define DOWN 5
 #define F_PIN 4
 #define MOGHAABEL A0
 #define MOTOR_ONE A1
@@ -53,13 +53,9 @@
 #define MOGHAABEL_ON HIGH
 #define MOGHAABEL_OFF LOW
 #define DOOR_OPEN_TIME 10000
-// #define TEMP_PIN 12
 #define DELAY_BEFORE_CLOSING 1000
-//#define positiveGreen   8
-//#define negativeRed     4
-//#define risingBlue      6
-//#define fallingYellow   5
-//#define steadyPink      A5
+#define nodeMcuOpen A4
+#define buzzerPin A3
 
 class StopWatch {
 public:
@@ -662,6 +658,9 @@ boolean nightsWatch () {
 */
 void Welcome() {
     Serial.println(F("you have a correct card you can enter..."));
+    analogWrite(buzzerPin, 600);
+    delay(500);
+    analogWrite(buzzerPin, 0);
     bellTrigger();
 }
 
@@ -671,6 +670,17 @@ void Welcome() {
 */
 void NotWelcome() {
     Serial.println(F("you Dont have a correct card , go home Dear thief..."));
+    analogWrite(buzzerPin, 600);
+    delay(500);
+    analogWrite(buzzerPin, 0);
+    delay(200);
+    analogWrite(buzzerPin, 600);
+    delay(500);
+    analogWrite(buzzerPin, 0);
+    delay(200);
+    analogWrite(buzzerPin, 600);
+    delay(500);
+    analogWrite(buzzerPin, 0);
 }
 
 
@@ -692,7 +702,7 @@ void keyChanger (byte cardLoc) {
 
 void doorDecision() {
     // moghaabek ro baraabar e output gharaar bede
-    int value = getValue(digitalRead(UP) == LOW, digitalRead(F_PIN) == LOW, digitalRead(DOWN) == LOW);
+    int value = getValue(digitalRead(interruptPinUp) == LOW, digitalRead(F_PIN) == LOW, digitalRead(interruptPinDown) == LOW);
     // yek moteghayer baraaye inke force koni dar baaz she
     boolean open_door = output == HIGH;
     if (value == B00000000) {
@@ -735,7 +745,7 @@ void doorDecision() {
 
 void intMakeDec() {
     // moghaabek ro baraabar e output gharaar bede
-    int value = getValue(digitalRead(UP) == LOW, digitalRead(F_PIN) == LOW, digitalRead(DOWN) == LOW);
+    int value = getValue(digitalRead(interruptPinUp) == LOW, digitalRead(F_PIN) == LOW, digitalRead(interruptPinDown) == LOW);
     // yek moteghayer baraaye inke force koni dar baaz she
     boolean open_door = output == HIGH;
     if (value == B00000000) {
@@ -785,8 +795,8 @@ void setup() {
     Serial.begin(115200); // Initialize serial communications with the PC
 
     trace(F("alert"), F("here we are! now!!"));
-    pinMode(UP, INPUT);
-    pinMode(DOWN, INPUT);
+//    pinMode(UP, INPUT);
+//    pinMode(DOWN, INPUT);
     pinMode(F_PIN, INPUT);
     pinMode(BELL_RINGER, INPUT);
     pinMode(RESET_PIN, INPUT);
@@ -801,8 +811,8 @@ void setup() {
     // pinMode(openPin,OUTPUT);
 
     digitalWrite(BELL_RINGER, HIGH);
-    digitalWrite(UP, HIGH);
-    digitalWrite(DOWN, HIGH);
+    digitalWrite(interruptPinUp, HIGH);
+    digitalWrite(interruptPinDown, HIGH);
     digitalWrite(F_PIN, HIGH);
     digitalWrite(RESET_PIN, HIGH);
     // digitalWrite(openPin,LOW);
@@ -851,6 +861,7 @@ void loop() {
     if (output == HIGH) {
         return;
     }
+    nodeMcuCommand();
     // Look for new cards
     if ( ! mfrc522.PICC_IsNewCardPresent())
         return;
@@ -879,6 +890,12 @@ void loop() {
     mfrc522.PICC_HaltA();
     mfrc522.PCD_StopCrypto1();
 }
-
+void nodeMcuCommand(){
+  int temp = analogRead(A4);
+  if (temp > 400){
+    Serial.println(F("nodeMcu says open"));
+    bellTrigger();
+  }
+}
 
 
